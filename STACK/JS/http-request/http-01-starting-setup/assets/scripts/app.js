@@ -1,5 +1,9 @@
 const listElement = document.querySelector(".posts");
 const postTemplate = document.getElementById("single-post");
+const form = document.querySelector("#new-post form");
+const fetchButton = document.getElementById("available-posts");
+const postList = document.querySelector('ul');
+
 
 function sendHttpRequest(method, url, data) {
     const promise = new Promise((resolve, reject) => {
@@ -21,33 +25,45 @@ async function fetchPosts() {
         "https://jsonplaceholder.typicode.com/posts"
     );
 
-    const listOfPosts = responseData
+    const listOfPosts = responseData;
     for (const post of listOfPosts) {
         const postEl = document.importNode(postTemplate.content, true);
         postEl.querySelector("h2").textContent = post.title.toUpperCase();
         postEl.querySelector("p").textContent = post.body;
+        postEl.querySelector("li").id = post.id;
         listElement.append(postEl);
     }
 }
 
-
-
-async function createPost(title,body){
-    const userId = Math.random()
+async function createPost(title, body) {
+    const userId = Math.random();
     const post = {
         title: title,
         body: body,
-        userId: userId
+        userId: userId,
     };
 
-    sendHttpRequest('POST', 'https://jsonplaceholder.typicode.com/posts',post)
+    sendHttpRequest("POST", "https://jsonplaceholder.typicode.com/posts", post);
 }
 
-fetchPosts();
-createPost('DUMMY','HELLO HERE IS DUMMY ONE !')
+fetchButton.addEventListener("click",fetchPosts);
+// createPost("DUMMY", "HELLO HERE IS DUMMY ONE !");
+form.addEventListener('submit', event => {
+    event.preventDefault()
+    const enteredTitle = event.currentTarget.querySelector("#title").value;
+    const enteredContent = event.currentTarget.querySelector("#content").value;
 
+    createPost(enteredTitle, enteredContent);}
+    )
 
-
+postList.addEventListener("click",event => {
+    if(event.target.tagName === "BUTTON"){
+        // console.log("Clicked on button!")
+        const postId = event.target.closest('li').id;
+        // console.log(postId);
+        sendHttpRequest('DELETE',`https://jsonplaceholder.typicode.com/posts/${postId}`)
+    }
+})
 
 
 
